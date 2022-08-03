@@ -4,17 +4,41 @@ import {
   Text, 
   View, 
   TouchableOpacity, 
-  TextInput 
+  TextInput,
+  FlatList 
 } from 'react-native';
 
-import {FontAwesome} from '@expo/vector-icons'
+import {FontAwesome} from '@expo/vector-icons';
+import Tarefas from './src/Tarefas';
 
 export default function App() {
 
   const [tarefa, setTarefa] = useState();
+  const [list, setList] = useState([])
 
   function handleAdd(){
-    alert(tarefa)
+    if(tarefa === ''){
+      alert('Insira uma tarefa no campo!')
+      return
+    }
+
+    const data = {
+      key: Date.now(),
+      item: tarefa
+    }
+
+    setList(oldArray => [data, ...oldArray])
+
+    setTarefa('')
+
+  }
+
+  function handleDelete(item){
+    let filterItemList = list.filter((tarefa) => {
+      return (tarefa.item !== item)
+    })
+    
+    setList(filterItemList)
   }
 
   return (
@@ -31,6 +55,16 @@ export default function App() {
           <FontAwesome name='plus' size={20} color="#fff"/>
         </TouchableOpacity>
       </View>
+      {list.length === 0 ? (
+        <Text style={styles.noList}>Não existem tarefas! Crie uma :D</Text>
+      ) : 
+        <FlatList
+          data={list}
+          keyExtractor={(item) => {item.key}}
+          renderItem={({item}) => <Tarefas data={item} deleteItem={() => handleDelete(item.item)}/>}
+          style={styles.list}
+        />
+      }
     </View>
   );
 }
@@ -39,7 +73,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#22272e',
-    paddingTop: 28
+    paddingTop: 28,
   },
 
   title:{
@@ -68,9 +102,22 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     width: '15%',
     height: 44,
-    backgroundColor:'#73ffff',
+    backgroundColor:'#223E99',
     justifyContent:'center',
     alignItems:'center',
     borderRadius: 4
+  },
+  noList:{
+    flex: 1,
+    color: '#fff',
+    textAlign:'center',
+    fontSize: 20,
+    marginTop: 100
+  },
+  list:{
+    flex: 1,
+    backgroundColor:'#fff',
+    paddingStart: '4%',
+    paddingEnd: '4%',
   }
 });
